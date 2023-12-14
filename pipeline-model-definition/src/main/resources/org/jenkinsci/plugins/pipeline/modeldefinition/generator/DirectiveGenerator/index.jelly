@@ -28,9 +28,10 @@
     <l:layout title="${%Pipeline Syntax: Directive Generator}" norefresh="true">
         <st:include page="sidepanel"/>
         <l:main-panel>
-            <f:form name="config">
-                <f:section title="${%Overview}"/>
-                <f:block>
+            <l:app-bar title="${%Overview}" />
+
+            <f:form name="config" class="jenkins-form">
+                <div class="jenkins-description">
                     The <b>Directive Generator</b> allows you to generate the Pipeline code for a Declarative Pipeline
                     directive, such as <code>agent</code>, <code>options</code>, <code>when</code>, and more. Choose the
                     directive you're interested in from the dropdown, and then choose the contents of the directive from
@@ -40,8 +41,10 @@
                     for top-level directives, or into a <code>stage</code> block for stage directives. See
                     <a href="https://jenkins.io/doc/book/pipeline/syntax/" target="_blank">the online syntax documentation</a>
                     for more information on directives.
-                </f:block>
-                <f:section title="${%Directives}"/>
+                </div>
+                <h2>
+                    ${%Directives}
+                </h2>
                 <!-- Similar to f:dropdownDescriptorSelector, but adds fallback content to block, and JENKINS-25130 adds per-selection help: -->
                 <j:set var="item" value="${it.getItem(request)}"/>
                 <d:taglib uri="local">
@@ -79,7 +82,9 @@
                 <j:set var="id" value="${h.generateId()}"/>
                 <f:block>
                     <span class="directive-generator-button-reference-holder" data-id="${id}" data-fullurl="${rootURL}/${it.GENERATE_URL}" />
-                    <input id="prototypeButton_${id}" type="button" value="${%Generate Declarative Directive}" class="submit-button primary"/>
+                    <button type="button" id="prototypeButton_${id}" class="jenkins-button jenkins-button--primary">
+                        ${%Generate Declarative Directive}
+                    </button>
                     <f:textarea id="prototypeText_${id}" readonly="true" style="margin-top: 10px" />
                     <st:adjunct includes="org.jenkinsci.plugins.pipeline.modeldefinition.generator.DirectiveGenerator.indexScript"/>
                 </f:block>
