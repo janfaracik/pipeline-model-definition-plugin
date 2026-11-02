@@ -33,6 +33,7 @@ import hudson.util.HttpResponses;
 import jenkins.model.Jenkins;
 import jenkins.model.ParameterizedJobMixIn;
 import jenkins.model.TransientActionFactory;
+import jenkins.model.experimentalflags.UserExperimentalFlag;
 import net.sf.json.JSONObject;
 import org.acegisecurity.AccessDeniedException;
 import org.jenkinsci.plugins.pipeline.StageStatus;
@@ -41,6 +42,7 @@ import org.jenkinsci.plugins.pipeline.modeldefinition.ast.ModelASTStage;
 import org.jenkinsci.plugins.pipeline.modeldefinition.causes.RestartDeclarativePipelineCause;
 import org.jenkinsci.plugins.pipeline.modeldefinition.options.impl.DisableRestartFromStage;
 import org.jenkinsci.plugins.workflow.cps.CpsFlowExecution;
+import org.jenkinsci.plugins.workflow.cps.replay.ReplayActionMenuContributor;
 import org.jenkinsci.plugins.workflow.flow.FlowExecution;
 import org.jenkinsci.plugins.workflow.flow.FlowExecutionOwner;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
@@ -80,7 +82,17 @@ public class RestartDeclarativePipelineAction implements Action {
     }
 
     @Override public String getIconFileName() {
+        if (isNewBuildPageEnabled()) {
+            // Shown in the Replay split button instead, see ReplayMenuContributor
+            return null;
+        }
+
         return isRestartEnabled() ? "symbol-refresh plugin-ionicons-api" : null;
+    }
+
+    private static boolean isNewBuildPageEnabled() {
+        return Boolean.TRUE.equals(UserExperimentalFlag.getFlagValueForCurrentUser(
+                "jenkins.model.experimentalflags.NewBuildPageUserExperimentalFlag"));
     }
 
     @Override public String getUrlName() {
@@ -244,6 +256,45 @@ public class RestartDeclarativePipelineAction implements Action {
         @NonNull
         public Collection<? extends Action> createFor(@NonNull WorkflowRun run) {
             return Collections.<Action>singleton(new RestartDeclarativePipelineAction(run));
+        }
+    }
+
+    /**
+     * Adds "Restart from Stage" to the Replay split button.
+     */
+    @Extension
+    public static class ReplayMenuContributor extends ReplayActionMenuContributor {
+
+        @Override
+        @NonNull
+        public Set<Action> getActions(Run<?, ?> run) {
+            if (!(run instanceof WorkflowRun)) {
+                return Set.of();
+            }
+
+            RestartDeclarativePipelineAction action = new RestartDeclarativePipelineAction(run);
+            return action.isRestartEnabled() ? Set.of(new RestartMenuItem()) : Set.of();
+        }
+    }
+
+    /**
+     * Menu-only entry, kept free of other getters as the app bar serializes menu items as beans.
+     */
+    private static final class RestartMenuItem implements Action {
+
+        @Override
+        public String getIconFileName() {
+            return "symbol-refresh plugin-ionicons-api";
+        }
+
+        @Override
+        public String getDisplayName() {
+            return Messages.Restart_from_Stage();
+        }
+
+        @Override
+        public String getUrlName() {
+            return "restart";
         }
     }
 
