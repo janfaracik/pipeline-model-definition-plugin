@@ -80,15 +80,15 @@
         <type>pom</type>
       </dependency>
       <dependency>
-        <!-- TODO: remove once workflow-cps with ReplayActionMenuContributor is released -->
+        <!-- For ReplayActionMenuContributor, newer than the BOM -->
         <groupId>org.jenkins-ci.plugins.workflow</groupId>
         <artifactId>workflow-cps</artifactId>
-        <version>999999-SNAPSHOT</version>
+        <version>4403.v471713a_cea_19</version>
       </dependency>
       <dependency>
         <groupId>org.jenkins-ci.plugins.workflow</groupId>
         <artifactId>workflow-cps</artifactId>
-        <version>999999-SNAPSHOT</version>
+        <version>4403.v471713a_cea_19</version>
         <classifier>tests</classifier>
       </dependency>
       <dependency>
